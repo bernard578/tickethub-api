@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from app.services import fetch_raw_todos, transform, get_user_map
 from app.schemas import Ticket, TicketDetail
+from app.schemas import Stats
 
 router = APIRouter()
 
@@ -35,6 +36,29 @@ async def list_tickets(
 
     return tickets_list[skip : skip + limit]
 
+@router.get("/stats", response_model=Stats)
+async def get_stats(
+    status: Optional[str] = None,
+    priority: Optional[str] = None
+) -> Stats:
+    todos = await fetch_raw_todos()
+    users = await get_user_map()
+    tickets = [await transform(t, users) for t in todos]
+
+    # apply filters
+    if status:
+        tickets = [t for t in tickets if t.status.value == status]
+    if priority:
+        tickets = [t for t in tickets if t.priority.value == priority]
+
+    total = len(tickets)
+    by_status = {}
+    by_priority = {}
+    for t in tickets:
+        by_status[t.status.value] = by_status.get(t.status.value, 0) + 1
+        by_priority[t.priority.value] = by_priority.get(t.priority.value, 0) + 1
+
+    return Stats(total=total, by_status=by_status, by_priority=by_priority)
 @router.get("/{ticket_id}", response_model=TicketDetail)
 async def get_ticket(ticket_id: int) -> TicketDetail:
     """
@@ -48,3 +72,5 @@ async def get_ticket(ticket_id: int) -> TicketDetail:
         raise HTTPException(status_code=404, detail="Ticket not found")
     ticket = await transform(todo, users)
     return TicketDetail(ticket=ticket, raw=todo)
+
+

@@ -22,3 +22,8 @@ class Ticket(BaseModel):
 class TicketDetail(BaseModel):
     ticket: Ticket
     raw: Dict[str, Any]
+
+class Stats(BaseModel):
+    total: int
+    by_status: Dict[str, int]
+    by_priority: Dict[str, int]
