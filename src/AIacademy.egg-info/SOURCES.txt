@@ -1,0 +1,10 @@
+setup.py
+src/AIacademy.egg-info/PKG-INFO
+src/AIacademy.egg-info/SOURCES.txt
+src/AIacademy.egg-info/dependency_links.txt
+src/AIacademy.egg-info/top_level.txt
+src/app/__init__.py
+src/app/main.py
+src/app/schemas.py
+src/app/services.py
+src/app/api/__init__.py
